@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>시간 및 클릭 인터랙션 페이지</title>
+    <style>
+        /* CSS: 스타일 및 레이아웃 설정 */
+        body {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            transition: background-color 0.8s ease-in-out; /* 배경색 부드러운 전환 */
+            color: white; /* 기본 글자색 (JS에서 시간에 따라 변경됨) */
+            text-align: center;
+            cursor: pointer; /* 클릭 가능하다는 시각적 힌트 */
+        }
+
+        h1 {
+            font-size: 3em;
+            margin-bottom: 0.5em;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+        }
+
+        p {
+            font-size: 1.5em;
+            opacity: 0.9;
+        }
+
+        .container {
+            padding: 40px;
+            border-radius: 15px;
+            background-color: rgba(0, 0, 0, 0.2);
+            backdrop-filter: blur(5px); /* 배경색과 대비를 위해 블러 효과 추가 */
+        }
+    </style>
+</head>
+<body id="page-body">
+    <div class="container">
+        <h1>지금은 <span id="current-time"></span> 입니다</h1>
+        <p id="time-message">화면을 클릭하면 색이 바뀌고, 1초 후 시간이 업데이트됩니다!</p>
+    </div>
+
+    <script>
+        // JavaScript: 기능 구현
+        const body = document.getElementById('page-body');
+        const timeDisplay = document.getElementById('current-time');
+        const messageDisplay = document.getElementById('time-message');
+        
+        // ==========================================================
+        // 1. 시간에 따른 배경색 및 메시지 업데이트 기능 (주요 기능)
+        // ==========================================================
+        function updateTimeAndStyle() {
+            const now = new Date();
+            const hours = now.getHours();
+            const minutes = now.getMinutes();
+            const seconds = now.getSeconds();
+
+            // 현재 시간을 포맷팅
+            const timeString = `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+            timeDisplay.textContent = timeString;
+
+            let bgColor;
+            let message;
+            let textColor;
+
+            // 시간대에 따른 설정
+            if (hours >= 5 && hours < 8) {
+                // 아침
+                bgColor = '#FFD700'; // 골드
+                message = "☀️ 상쾌한 아침이에요! 오늘도 힘차게 시작해 보세요.";
+                textColor = '#333';
+            } else if (hours >= 8 && hours < 12) {
+                // 오전
+                bgColor = '#4682B4'; // 스틸 블루
+                message = "📝 오전 업무나 학습에 집중할 시간입니다.";
+                textColor = 'white';
+            } else if (hours >= 12 && hours < 17) {
+                // 오후
+                bgColor = '#3CB371'; // 미디엄 씨 그린
+                message = "☕ 점심 식사 후 활기찬 오후를 보내세요!";
+                textColor = 'white';
+            } else if (hours >= 17 && hours < 20) {
+                // 저녁
+                bgColor = '#FF8C00'; // 다크 오렌지
+                message = "🌅 아름다운 저녁 시간! 하루를 마무리할 준비를 해볼까요?";
+                textColor = 'white';
+            } else if (hours >= 20 && hours < 23) {
+                // 밤
+                bgColor = '#483D8B'; // 다크 슬레이트 블루
+                message = "🌙 편안한 밤입니다. 휴식을 취하세요.";
+                textColor = 'white';
+            } else {
+                // 심야/새벽
+                bgColor = '#191970'; // 미드나잇 블루
+                message = "🌌 깊은 밤입니다. 코딩은 잠시 접어두고 꿀잠 주무세요!";
+                textColor = 'white';
+            }
+
+            // 계산된 배경색과 메시지 적용
+            body.style.backgroundColor = bgColor;
+            body.style.color = textColor;
+            messageDisplay.textContent = message; 
+            // 참고: 클릭 이벤트가 발생했을 경우, 이 함수가 다시 실행되면서 클릭 메시지가 덮어쓰여집니다.
+        }
+
+        // 1초마다 업데이트 (시간 인터랙션의 핵심)
+        setInterval(updateTimeAndStyle, 1000);
+
+        // 페이지 로드 시 즉시 한 번 실행
+        updateTimeAndStyle();
+
+
+        // ==========================================================
+        // 2. 클릭 시 배경색 무작위 변경 기능 (사용자 인터랙션 기능)
+        // ==========================================================
+        
+        // 무작위 16진수 색상 코드를 생성하는 함수
+        function getRandomHexColor() {
+            return '#' + Math.floor(Math.random() * 16777215).toString(16).padStart(6, '0');
+        }
+
+        // 문서 전체를 클릭했을 때 실행
+        document.addEventListener('click', function() {
+            const randomColor = getRandomHexColor();
+            
+            // 배경색을 무작위 색상으로 변경
+            body.style.backgroundColor = randomColor;
+
+            // 클릭 피드백 메시지 출력
+            messageDisplay.textContent = "✨ 클릭 감사합니다! 새로운 색상으로 바뀌었어요!";
+
+            // 참고: 1초 이내에 updateTimeAndStyle() 함수가 다시 실행되어 
+            // 시간에 따른 원래의 색상과 메시지로 돌아갑니다.
+        });
+    </script>
+</body>
+</html>
